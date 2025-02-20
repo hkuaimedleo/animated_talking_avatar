@@ -10,6 +10,7 @@ import { SkeletonUtils } from "three-stdlib";
 import { CORRESPONDING_VISEME } from "../constant";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
+import { useControls } from "leva";
 
 export function Avatar(props) {
   const { scene } = useGLTF("/models/674d75af3c0313725248ed0d.glb");
@@ -25,83 +26,19 @@ export function Avatar(props) {
   const { actions } = useAnimations([idleAnimation[0]], group);
   // const currentViseme = useRef(null);
   const currentViseme = useRef(null);
+  const { morphTargetSmoothing, smoothMorphTarget } = useControls(
+    {
+      headFollow: true,
+      smoothMorphTarget: true,
+      morphTargetSmoothing: { value: 0.3, min: 0, max: 1, step: 0.01 },
+    },
+    { hidden: true }
+  );
 
   useEffect(() => {
     actions[animation] && actions[animation].reset().fadeIn(0.5).play();
     return () => actions[animation] && actions[animation].fadeOut(0.5);
   }, [animation]);
-
-  // useEffect(() => {
-  //   if (props?.speak) {
-  //     const utterance = new SpeechSynthesisUtterance(props.text);
-  //     const words = props.text.toUpperCase().split("");
-
-  //     utterance.onboundary = (event) => {
-  //       const char = words[event.charIndex];
-
-  //       if (CORRESPONDING_VISEME[char]) {
-  //         const viseme = CORRESPONDING_VISEME[char];
-  //         console.log("Mapped Viseme:", viseme);
-  //         currentViseme.current = viseme;
-
-  //         // Keep the viseme active slightly longer before resetting
-  //         setTimeout(() => {
-  //           if (currentViseme.current === viseme) {
-  //             currentViseme.current = null;
-  //           }
-  //         }, 120); // Delay resets to make it smoother
-  //       }
-  //     };
-
-  //     utterance.onend = () => {
-  //       console.log("Speech ended, resetting viseme");
-  //       currentViseme.current = null;
-  //     };
-
-  //     speechSynthesis.speak(utterance);
-  //     props.setSpeak(false);
-  //   }
-  // }, [props?.speak]);
-
-  // useFrame(() => {
-  //   if (
-  //     currentViseme.current &&
-  //     nodes.Wolf3D_Head.morphTargetDictionary[currentViseme.current]
-  //   ) {
-  //     const index =
-  //       nodes.Wolf3D_Head.morphTargetDictionary[currentViseme.current];
-
-  //     nodes.Wolf3D_Head.morphTargetInfluences[index] = THREE.MathUtils.lerp(
-  //       nodes.Wolf3D_Head.morphTargetInfluences[index],
-  //       1, // Smoother transition
-  //       0.3
-  //     );
-  //     nodes.Wolf3D_Teeth.morphTargetInfluences[index] = THREE.MathUtils.lerp(
-  //       nodes.Wolf3D_Teeth.morphTargetInfluences[index],
-  //       1,
-  //       0.3
-  //     );
-
-  //     return;
-  //   }
-
-  //   // Reset morph targets smoothly only when speech ends
-  //   if (!speechSynthesis.speaking) {
-  //     Object.keys(nodes.Wolf3D_Head.morphTargetDictionary).forEach((key) => {
-  //       const index = nodes.Wolf3D_Head.morphTargetDictionary[key];
-  //       nodes.Wolf3D_Head.morphTargetInfluences[index] = THREE.MathUtils.lerp(
-  //         nodes.Wolf3D_Head.morphTargetInfluences[index],
-  //         0,
-  //         0.05 // Smoother reset
-  //       );
-  //       nodes.Wolf3D_Teeth.morphTargetInfluences[index] = THREE.MathUtils.lerp(
-  //         nodes.Wolf3D_Teeth.morphTargetInfluences[index],
-  //         0,
-  //         0.05
-  //       );
-  //     });
-  //   }
-  // });
 
   useEffect(() => {
     if (props?.speak) {
@@ -109,19 +46,21 @@ export function Avatar(props) {
       const words = props.text.toUpperCase().split("");
 
       utterance.onboundary = (event) => {
-        const char = words[event.charIndex];
-        console.log("Detected Character:", char);
+        const word = words[event.charIndex];
 
-        if (CORRESPONDING_VISEME[char]) {
-          const viseme = CORRESPONDING_VISEME[char];
-          console.log("Mapped Viseme:", viseme);
+        if (!word) return;
+
+        const phoneme = word.toUpperCase();
+        const viseme = CORRESPONDING_VISEME[phoneme];
+
+        if (viseme) {
           currentViseme.current = viseme;
 
           setTimeout(() => {
             if (currentViseme.current === viseme) {
               currentViseme.current = null;
             }
-          }, 120);
+          }, 150);
         }
       };
 
@@ -130,6 +69,14 @@ export function Avatar(props) {
 
         setTimeout(() => {
           currentViseme.current = null;
+
+          Object.keys(nodes.Wolf3D_Head.morphTargetDictionary).forEach(
+            (key) => {
+              const index = nodes.Wolf3D_Head.morphTargetDictionary[key];
+              nodes.Wolf3D_Head.morphTargetInfluences[index] = 0;
+              nodes.Wolf3D_Teeth.morphTargetInfluences[index] = 0;
+            }
+          );
         }, 300);
       };
 
@@ -139,51 +86,39 @@ export function Avatar(props) {
   }, [props?.speak]);
 
   useFrame(() => {
-    if (
-      currentViseme.current &&
-      nodes.Wolf3D_Head.morphTargetDictionary[currentViseme.current]
-    ) {
-      console.log("Applying Morph Target for:", currentViseme.current);
-
+    if (currentViseme.current) {
       const index =
         nodes.Wolf3D_Head.morphTargetDictionary[currentViseme.current];
 
+      // Apply smooth interpolation instead of instant viseme activation
       nodes.Wolf3D_Head.morphTargetInfluences[index] = THREE.MathUtils.lerp(
         nodes.Wolf3D_Head.morphTargetInfluences[index],
         1,
-        0.3 // Smooth transition
+        morphTargetSmoothing
       );
+
       nodes.Wolf3D_Teeth.morphTargetInfluences[index] = THREE.MathUtils.lerp(
         nodes.Wolf3D_Teeth.morphTargetInfluences[index],
         1,
-        0.3
+        morphTargetSmoothing
       );
-
-      return;
-    }
-
-    if (!speechSynthesis.speaking) {
+    } else {
+      // Smoothly return to neutral when speech stops
       Object.keys(nodes.Wolf3D_Head.morphTargetDictionary).forEach((key) => {
         const index = nodes.Wolf3D_Head.morphTargetDictionary[key];
+
         nodes.Wolf3D_Head.morphTargetInfluences[index] = THREE.MathUtils.lerp(
           nodes.Wolf3D_Head.morphTargetInfluences[index],
           0,
-          0.3
+          0.15 // Lower value = smoother transition to idle
         );
+
         nodes.Wolf3D_Teeth.morphTargetInfluences[index] = THREE.MathUtils.lerp(
           nodes.Wolf3D_Teeth.morphTargetInfluences[index],
           0,
-          0.3
+          0.15
         );
       });
-
-      setTimeout(() => {
-        Object.keys(nodes.Wolf3D_Head.morphTargetDictionary).forEach((key) => {
-          const index = nodes.Wolf3D_Head.morphTargetDictionary[key];
-          nodes.Wolf3D_Head.morphTargetInfluences[index] = 0;
-          nodes.Wolf3D_Teeth.morphTargetInfluences[index] = 0;
-        });
-      }, 500);
     }
   });
 

@@ -46,7 +46,6 @@ export const TEXTURE_PATH = "/textures/avatarBackground.png";
 //   Z: "viseme_SS",
 // };
 
-
 export const CORRESPONDING_VISEME = {
   A: "viseme_aa",  // Mouth open wide
   B: "viseme_PP",  // Closed lips
@@ -75,3 +74,15 @@ export const CORRESPONDING_VISEME = {
   Y: "viseme_I",   // "Y" sound
   Z: "viseme_SS",  // "Z" (Hissing)
 };
+
+// export const CORRESPONDING_VISEME = {
+//   A: "viseme_PP",
+//   B: "viseme_kk",
+//   C: "viseme_I",
+//   D: "viseme_AA",
+//   E: "viseme_O",
+//   F: "viseme_U",
+//   G: "viseme_FF",
+//   H: "viseme_TH",
+//   X: "viseme_PP",
+// };
