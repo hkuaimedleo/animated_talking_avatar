@@ -35,11 +35,20 @@ function AvatarView() {
       document.removeEventListener("fullscreenchange", handleFullScreenChange);
   }, []);
 
+  useEffect(() => {
+    // Remove body margin
+    const originalMargin = document.body.style.margin;
+    document.body.style.margin = "0";
+    return () => {
+      document.body.style.margin = originalMargin;
+    };
+  }, []);
+
   return (
     <div
       style={{
-        height: "97vh",
-        width: "99vw",
+        height: "100vh",
+        width: "100vw",
         backgroundColor: "#2d2d2d",
         display: "flex",
         flexDirection: "column",
