@@ -51,9 +51,11 @@ function AvatarView() {
   useEffect(() => {
     const loadVoices = () => {
       const synthVoices = window.speechSynthesis.getVoices();
-      setVoices(synthVoices);
-      if (synthVoices.length > 0 && !selectedVoice) {
-        setSelectedVoice(synthVoices[0].voiceURI);
+      // Only keep voices with lang === "en-US"
+      const enUSVoices = synthVoices.filter(v => v.lang === "en-US");
+      setVoices(enUSVoices);
+      if (enUSVoices.length > 0 && !selectedVoice) {
+        setSelectedVoice(enUSVoices[0].voiceURI);
       }
     };
     loadVoices();
