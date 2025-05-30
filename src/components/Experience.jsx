@@ -4,7 +4,7 @@ import { useThree } from "@react-three/fiber";
 import { TEXTURE_PATH } from "../constant";
 import PropTypes from "prop-types";
 
-const Experience = ({ speakingText, speak, setSpeak, voiceURI, onSpeechStart, onSpeechEnd }) => {
+const Experience = ({ speakingText, speak, setSpeak, voiceURI, onSpeechStart, onSpeechEnd, maxMouthOpen = 0.5 }) => {
   const texture = useTexture(TEXTURE_PATH);
   const viewport = useThree((state) => state.viewport);
 
@@ -20,6 +20,7 @@ const Experience = ({ speakingText, speak, setSpeak, voiceURI, onSpeechStart, on
         voiceURI={voiceURI}
         onSpeechStart={onSpeechStart}
         onSpeechEnd={onSpeechEnd}
+        maxMouthOpen={maxMouthOpen}
       />{" "}
       {/* Position [] take three values first is x, second is y, third is z. This is use to change the view of avatar and scale is use to handle avatar zoom */}
       <Environment preset="sunset" />{" "}

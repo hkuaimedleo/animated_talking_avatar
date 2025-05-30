@@ -30,6 +30,9 @@ export function Avatar(props) {
     { hidden: true }
   );
 
+  // Add maxMouthOpen prop with default value 0.5
+  const maxMouthOpen = props.maxMouthOpen !== undefined ? props.maxMouthOpen : 0.5;
+
   useEffect(() => {
     actions[animation] && actions[animation].reset().fadeIn(0.5).play();
     return () => actions[animation] && actions[animation].fadeOut(0.5);
@@ -98,16 +101,23 @@ export function Avatar(props) {
       const index =
         nodes.Wolf3D_Head.morphTargetDictionary[currentViseme.current];
 
-      nodes.Wolf3D_Head.morphTargetInfluences[index] = THREE.MathUtils.lerp(
-        nodes.Wolf3D_Head.morphTargetInfluences[index],
-        1,
-        morphTargetSmoothing
+      // Use maxMouthOpen for limiting morph target influence
+      nodes.Wolf3D_Head.morphTargetInfluences[index] = Math.min(
+        THREE.MathUtils.lerp(
+          nodes.Wolf3D_Head.morphTargetInfluences[index],
+          1,
+          morphTargetSmoothing
+        ),
+        maxMouthOpen
       );
 
-      nodes.Wolf3D_Teeth.morphTargetInfluences[index] = THREE.MathUtils.lerp(
-        nodes.Wolf3D_Teeth.morphTargetInfluences[index],
-        1,
-        morphTargetSmoothing
+      nodes.Wolf3D_Teeth.morphTargetInfluences[index] = Math.min(
+        THREE.MathUtils.lerp(
+          nodes.Wolf3D_Teeth.morphTargetInfluences[index],
+          1,
+          morphTargetSmoothing
+        ),
+        maxMouthOpen
       );
     } else {
       Object.keys(nodes.Wolf3D_Head.morphTargetDictionary).forEach((key) => {
