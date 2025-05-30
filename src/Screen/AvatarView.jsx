@@ -7,6 +7,9 @@ function AvatarView() {
   const [text, setText] = useState("");
   const [speak, setSpeak] = useState(false);
   const [isFullScreen, setIsFullScreen] = useState(false);
+  const [voices, setVoices] = useState([]);
+  const [selectedVoice, setSelectedVoice] = useState(null);
+  const [speaking, setSpeaking] = useState(false);
   const containerRef = useRef(null);
 
   const height = useMemo(() => {
@@ -43,6 +46,22 @@ function AvatarView() {
       document.body.style.margin = originalMargin;
     };
   }, []);
+
+  // Fetch available voices
+  useEffect(() => {
+    const loadVoices = () => {
+      const synthVoices = window.speechSynthesis.getVoices();
+      setVoices(synthVoices);
+      if (synthVoices.length > 0 && !selectedVoice) {
+        setSelectedVoice(synthVoices[0].voiceURI);
+      }
+    };
+    loadVoices();
+    window.speechSynthesis.onvoiceschanged = loadVoices;
+    return () => {
+      window.speechSynthesis.onvoiceschanged = null;
+    };
+  }, [selectedVoice]);
 
   return (
     <div
@@ -113,7 +132,14 @@ function AvatarView() {
           }}
         >
           <color attach="background" args={["#2d2d2d"]} />
-          <Experience speakingText={text} speak={speak} setSpeak={setSpeak} />
+          <Experience
+            speakingText={text}
+            speak={speak}
+            setSpeak={setSpeak}
+            voiceURI={selectedVoice}
+            onSpeechStart={() => setSpeaking(true)}
+            onSpeechEnd={() => setSpeaking(false)}
+          />
         </Canvas>
       </div>
 
@@ -130,6 +156,28 @@ function AvatarView() {
             boxSizing: "border-box",
           }}
         >
+          <div style={{ display: "flex", flexDirection: "column", marginRight: "10px" }}>
+            <label htmlFor="voice-select" style={{ color: "#fff", marginBottom: "4px" }}>Voice</label>
+            <select
+              id="voice-select"
+              value={selectedVoice || ""}
+              onChange={e => setSelectedVoice(e.target.value)}
+              style={{
+                padding: "6px",
+                borderRadius: "6px",
+                border: "1px solid #555",
+                backgroundColor: "#1e1e1e",
+                color: "#fff",
+                fontSize: "14px"
+              }}
+            >
+              {voices.map((voice) => (
+                <option key={voice.voiceURI} value={voice.voiceURI}>
+                  {voice.name} {voice.lang} {voice.default ? "(default)" : ""}
+                </option>
+              ))}
+            </select>
+          </div>
           <textarea
             rows={4}
             value={text}
@@ -152,21 +200,26 @@ function AvatarView() {
             onClick={() => {
               setSpeak(true);
             }}
+            disabled={speaking}
             style={{
               marginLeft: "10px",
               padding: "10px 20px",
-              backgroundColor: "#4CAF50",
+              backgroundColor: speaking ? "#888" : "#4CAF50",
               color: "white",
               border: "none",
               borderRadius: "10px",
-              cursor: "pointer",
+              cursor: speaking ? "not-allowed" : "pointer",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               transition: "background-color 0.3s ease",
             }}
-            onMouseEnter={(e) => (e.target.style.backgroundColor = "#45a049")}
-            onMouseLeave={(e) => (e.target.style.backgroundColor = "#4CAF50")}
+            onMouseEnter={(e) => {
+              if (!speaking) e.target.style.backgroundColor = "#45a049";
+            }}
+            onMouseLeave={(e) => {
+              if (!speaking) e.target.style.backgroundColor = "#4CAF50";
+            }}
           >
             <MdVolumeUp size={20} style={{ marginRight: "8px" }} />
             Speak

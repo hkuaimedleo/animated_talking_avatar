@@ -38,6 +38,17 @@ export function Avatar(props) {
   useEffect(() => {
     if (props?.speak) {
       const utterance = new SpeechSynthesisUtterance(props.text);
+
+      // Set the selected voice if provided
+      if (props.voiceURI) {
+        const voices = window.speechSynthesis.getVoices();
+        const selected = voices.find((v) => v.voiceURI === props.voiceURI);
+        if (selected) utterance.voice = selected;
+      }
+
+      // Notify parent that speech is starting
+      if (props.onSpeechStart) props.onSpeechStart();
+
       const words = props.text.toUpperCase().split("");
 
       utterance.onboundary = (event) => {
@@ -73,6 +84,8 @@ export function Avatar(props) {
             }
           );
         }, 300);
+        // Notify parent that speech has ended
+        if (props.onSpeechEnd) props.onSpeechEnd();
       };
 
       speechSynthesis.speak(utterance);
