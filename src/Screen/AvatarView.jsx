@@ -160,8 +160,25 @@ function AvatarView() {
             boxSizing: "border-box",
           }}
         >
-          <div style={{ display: "flex", flexDirection: "column", marginRight: "10px" }}>
-            <label htmlFor="voice-select" style={{ color: "#fff", marginBottom: "4px" }}>Voice</label>
+          <textarea
+            rows={4}
+            value={text}
+            placeholder="Type something..."
+            style={{
+              padding: "10px",
+              width: "70%",
+              borderRadius: "10px",
+              border: "1px solid #555",
+              resize: "none",
+              fontSize: "16px",
+              backgroundColor: "#1e1e1e",
+              color: "#fff",
+              boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+              boxSizing: "border-box",
+            }}
+            onChange={(e) => setText(e.target.value)}
+          />
+          <div style={{ display: "flex", flexDirection: "column", marginLeft: "10px", marginRight: "10px" }}>
             <select
               id="voice-select"
               value={selectedVoice || ""}
@@ -182,24 +199,6 @@ function AvatarView() {
               ))}
             </select>
           </div>
-          <textarea
-            rows={4}
-            value={text}
-            placeholder="Type something..."
-            style={{
-              padding: "10px",
-              width: "70%",
-              borderRadius: "10px",
-              border: "1px solid #555",
-              resize: "none",
-              fontSize: "16px",
-              backgroundColor: "#1e1e1e",
-              color: "#fff",
-              boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-              boxSizing: "border-box",
-            }}
-            onChange={(e) => setText(e.target.value)}
-          />
           <button
             onClick={() => {
               setSpeak(true);
