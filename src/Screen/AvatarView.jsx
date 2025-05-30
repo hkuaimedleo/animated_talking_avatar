@@ -4,7 +4,9 @@ import Experience from "../components/Experience";
 import { MdFullscreen, MdCloseFullscreen, MdVolumeUp } from "react-icons/md";
 
 function AvatarView() {
-  const [text, setText] = useState("");
+  const [text, setText] = useState(
+    "Hi there! Just wanted to check in and see how you're feeling today. Did you sleep okay? I hope you're having a comfortable morning so far. If there's anything you need or if you just feel like chatting for a bit, I'm always here. It's always nice to hear how you're doing."
+  );
   const [speak, setSpeak] = useState(false);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [voices, setVoices] = useState([]);
