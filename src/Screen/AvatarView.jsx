@@ -12,7 +12,14 @@ function AvatarView() {
   const [voices, setVoices] = useState([]);
   const [selectedVoice, setSelectedVoice] = useState(null);
   const [speaking, setSpeaking] = useState(false);
+  const [avatarModel, setAvatarModel] = useState("/models/female.glb");
   const containerRef = useRef(null);
+
+  const avatarOptions = [
+    { label: "Female", value: "/models/female.glb" },
+    { label: "Male", value: "/models/male.glb" },
+    // Add more avatars here as needed
+  ];
 
   const height = useMemo(() => {
     const width = window.innerWidth;
@@ -143,6 +150,7 @@ function AvatarView() {
             voiceURI={selectedVoice}
             onSpeechStart={() => setSpeaking(true)}
             onSpeechEnd={() => setSpeaking(false)}
+            avatarModel={avatarModel}
           />
         </Canvas>
       </div>
@@ -179,6 +187,25 @@ function AvatarView() {
             onChange={(e) => setText(e.target.value)}
           />
           <div style={{ display: "flex", flexDirection: "column", marginLeft: "10px", marginRight: "10px" }}>
+            <select
+              id="avatar-select"
+              value={avatarModel}
+              onChange={e => setAvatarModel(e.target.value)}
+              style={{
+                padding: "6px",
+                borderRadius: "6px",
+                border: "1px solid #555",
+                backgroundColor: "#1e1e1e",
+                color: "#fff",
+                fontSize: "14px",
+                marginBottom: "8px"
+              }}
+              title="Choose avatar"
+            >
+              {avatarOptions.map(opt => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
             <select
               id="voice-select"
               value={selectedVoice || ""}
