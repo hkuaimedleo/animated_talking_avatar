@@ -12,12 +12,6 @@ export function Avatar(props) {
   const { scene } = useGLTF(modelPath);
   const clone = React.useMemo(() => SkeletonUtils.clone(scene), [scene]);
   const { nodes, materials } = useGraph(clone);
-
-  console.log("Head morph targets:", nodes.Wolf3D_Head?.morphTargetDictionary);
-  console.log("Head morph influences:", nodes.Wolf3D_Head?.morphTargetInfluences);
-  console.log("Teeth morph targets:", nodes.Wolf3D_Teeth?.morphTargetDictionary);
-  console.log("Teeth morph influences:", nodes.Wolf3D_Teeth?.morphTargetInfluences);
-
   const { animations: idleAnimation } = useFBX("/animations/Idle.fbx");
 
   idleAnimation[0].name = "Idle";
@@ -125,6 +119,8 @@ export function Avatar(props) {
         ),
         maxMouthOpen
       );
+
+      console.log(index + "; " + nodes.Wolf3D_Head.morphTargetInfluences[index]);
 
     } else {
       Object.keys(nodes.Wolf3D_Head.morphTargetDictionary).forEach((key) => {

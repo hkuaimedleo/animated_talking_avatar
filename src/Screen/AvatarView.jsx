@@ -144,6 +144,7 @@ function AvatarView() {
         >
           <color attach="background" args={["#2d2d2d"]} />
           <Experience
+            key={avatarModel}
             speakingText={text}
             speak={speak}
             setSpeak={setSpeak}
