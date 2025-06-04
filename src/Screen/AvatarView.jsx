@@ -13,6 +13,7 @@ function AvatarView() {
   const [selectedVoice, setSelectedVoice] = useState(null);
   const [speaking, setSpeaking] = useState(false);
   const [avatarModel, setAvatarModel] = useState("/models/female.glb");
+  const [background, setBackground] = useState("/textures/default.png");
   const containerRef = useRef(null);
 
   const avatarOptions = [
@@ -21,10 +22,20 @@ function AvatarView() {
     // Add more avatars here as needed
   ];
 
+  const backgroundOptions = [
+    { label: "Default", value: "/textures/default.png" },
+    { label: "Beach", value: "/textures/beach.jpg" },
+    { label: "Living Room", value: "/textures/living_room.jpg" },
+    // Add more backgrounds as needed
+  ];
+
   const height = useMemo(() => {
     const width = window.innerWidth;
     const height = window.innerHeight;
-    return width < 768 ? `${Math.round(height * 0.68)}px` : `${Math.round(width * 0.3)}px`;
+    // Increase the percentage for mobile and desktop
+    return width < 768
+      ? `${Math.round(height * 0.75)}px` // was 0.68
+      : `${Math.round(width * 0.35)}px`;  // was 0.3
   }, [isFullScreen]);
 
   const toggleFullScreen = () => {
@@ -152,6 +163,7 @@ function AvatarView() {
             onSpeechStart={() => setSpeaking(true)}
             onSpeechEnd={() => setSpeaking(false)}
             avatarModel={avatarModel}
+            background={background}
           />
         </Canvas>
       </div>
@@ -217,13 +229,33 @@ function AvatarView() {
                 border: "1px solid #555",
                 backgroundColor: "#1e1e1e",
                 color: "#fff",
-                fontSize: "14px"
+                fontSize: "14px",
+                marginBottom: "8px"
               }}
             >
               {voices.map((voice) => (
                 <option key={voice.voiceURI} value={voice.voiceURI}>
                   {voice.name} {voice.lang} {voice.default ? "(default)" : ""}
                 </option>
+              ))}
+            </select>
+            <select
+              id="background-select"
+              value={background}
+              onChange={e => setBackground(e.target.value)}
+              style={{
+                padding: "6px",
+                borderRadius: "6px",
+                border: "1px solid #555",
+                backgroundColor: "#1e1e1e",
+                color: "#fff",
+                fontSize: "14px",
+                marginBottom: "8px"
+              }}
+              title="Choose background"
+            >
+              {backgroundOptions.map(opt => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
               ))}
             </select>
           </div>

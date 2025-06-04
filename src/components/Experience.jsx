@@ -4,8 +4,18 @@ import { useThree } from "@react-three/fiber";
 import { TEXTURE_PATH } from "../constant";
 import PropTypes from "prop-types";
 
-const Experience = ({ speakingText, speak, setSpeak, voiceURI, onSpeechStart, onSpeechEnd, maxMouthOpen = 0.5, avatarModel }) => {
-  const texture = useTexture(TEXTURE_PATH);
+const Experience = ({
+  speakingText,
+  speak,
+  setSpeak,
+  voiceURI,
+  onSpeechStart,
+  onSpeechEnd,
+  maxMouthOpen = 0.5,
+  avatarModel,
+  background = "/textures/avatarBackground.png",
+}) => {
+  const texture = useTexture(background);
   const viewport = useThree((state) => state.viewport);
 
   return (
@@ -42,6 +52,7 @@ Experience.propTypes = {
   onSpeechStart: PropTypes.func,
   onSpeechEnd: PropTypes.func,
   avatarModel: PropTypes.string,
+  background: PropTypes.string,
 };
 
 export default Experience;

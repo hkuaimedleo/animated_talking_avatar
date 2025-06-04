@@ -33,10 +33,10 @@ export function Avatar(props) {
   // Add maxMouthOpen prop with default value 0.5
   const maxMouthOpen = props.maxMouthOpen !== undefined ? props.maxMouthOpen : 0.5;
 
-  useEffect(() => {
-    actions[animation] && actions[animation].reset().fadeIn(0.5).play();
-    return () => actions[animation] && actions[animation].fadeOut(0.5);
-  }, [animation]);
+  // useEffect(() => {
+  //   actions[animation] && actions[animation].reset().fadeIn(0.5).play();
+  //   return () => actions[animation] && actions[animation].fadeOut(0.5);
+  // }, [animation]);
 
   useEffect(() => {
     if (props?.speak) {
