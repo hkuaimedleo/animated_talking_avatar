@@ -4,6 +4,14 @@ import { useThree } from "@react-three/fiber";
 import { TEXTURE_PATH } from "../constant";
 import PropTypes from "prop-types";
 
+// Add your avatar presets here
+const AVATAR_PRESETS = {
+  "/models/female.glb": { position: [0, -5, 5], scale: 3 },
+  "/models/male.glb": { position: [0, -5, 5], scale: 3 },
+  "/models/cartoon.glb": { position: [0, -5, 1.5], scale: 3 },
+  // Add more avatars and their presets as needed
+};
+
 const Experience = ({
   speakingText,
   speak,
@@ -18,12 +26,15 @@ const Experience = ({
   const texture = useTexture(background);
   const viewport = useThree((state) => state.viewport);
 
+  // Get preset or fallback to default
+  const { position = [0, -5, 5], scale = 3 } = AVATAR_PRESETS[avatarModel] || {};
+
   return (
     <>
-      {/* <OrbitControls /> */}{" "}
+      {/* <OrbitControls /> */}
       <Avatar
-        position={[0, -5, 5]}
-        scale={3}
+        position={position}
+        scale={scale}
         text={speakingText}
         speak={speak}
         setSpeak={setSpeak}

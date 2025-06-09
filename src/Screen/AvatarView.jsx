@@ -19,6 +19,7 @@ function AvatarView() {
   const avatarOptions = [
     { label: "Female", value: "/models/female.glb" },
     { label: "Male", value: "/models/male.glb" },
+    { label: "Cartoon", value: "/models/cartoon.glb" },
     // Add more avatars here as needed
   ];
 
