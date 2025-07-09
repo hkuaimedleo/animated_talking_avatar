@@ -21,12 +21,6 @@ export function RobotAvatar2D(props) {
     // Clear canvas
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
-    // Draw face (circular baby face)
-    ctx.fillStyle = '#ffdbac'; // Baby skin tone
-    ctx.beginPath();
-    ctx.arc(centerX, centerY, size/2, 0, Math.PI * 2);
-    ctx.fill();
-
     // Draw eyes
     drawEyes(ctx, centerX, centerY, eyeColor, eyeState);
 
@@ -38,31 +32,29 @@ export function RobotAvatar2D(props) {
   };
 
   const drawEyes = (ctx, centerX, centerY, eyeColor, state) => {
-    const eyeY = centerY - 30;
-    const eyeSpacing = 40;
-    const eyeWidth = 15;
-    const eyeHeight = 20;
+    // Spread eyes wider and higher on the canvas
+    const eyeY = centerY - 100;
+    const eyeSpacing = 180;
+    const eyeWidth = 40;
+    const eyeHeight = 60;
 
     ctx.fillStyle = '#000000'; // Black eyes
     ctx.shadowBlur = 0;
 
     switch(state) {
       case 'blink':
-        // Draw horizontal lines for blinking
-        ctx.fillRect(centerX - eyeSpacing - eyeWidth/2, eyeY - 2, eyeWidth, 4);
-        ctx.fillRect(centerX + eyeSpacing - eyeWidth/2, eyeY - 2, eyeWidth, 4);
+        ctx.fillRect(centerX - eyeSpacing - eyeWidth/2, eyeY - 4, eyeWidth, 8);
+        ctx.fillRect(centerX + eyeSpacing - eyeWidth/2, eyeY - 4, eyeWidth, 8);
         break;
       case 'excited':
-        // Draw larger oval eyes (wide open baby eyes)
         ctx.beginPath();
-        ctx.ellipse(centerX - eyeSpacing, eyeY, eyeWidth * 1.3, eyeHeight * 1.3, 0, 0, Math.PI * 2);
+        ctx.ellipse(centerX - eyeSpacing, eyeY, eyeWidth * 1.2, eyeHeight * 1.2, 0, 0, Math.PI * 2);
         ctx.fill();
         ctx.beginPath();
-        ctx.ellipse(centerX + eyeSpacing, eyeY, eyeWidth * 1.3, eyeHeight * 1.3, 0, 0, Math.PI * 2);
+        ctx.ellipse(centerX + eyeSpacing, eyeY, eyeWidth * 1.2, eyeHeight * 1.2, 0, 0, Math.PI * 2);
         ctx.fill();
         break;
       default:
-        // Normal baby eyes (large and round)
         ctx.beginPath();
         ctx.ellipse(centerX - eyeSpacing, eyeY, eyeWidth, eyeHeight, 0, 0, Math.PI * 2);
         ctx.fill();
@@ -71,75 +63,64 @@ export function RobotAvatar2D(props) {
         ctx.fill();
     }
 
-    // Add eye highlights for more lifelike appearance
+    // Add eye highlights
     if (state !== 'blink') {
       ctx.fillStyle = '#ffffff';
       ctx.beginPath();
-      ctx.ellipse(centerX - eyeSpacing - 5, eyeY - 5, 3, 4, 0, 0, Math.PI * 2);
+      ctx.ellipse(centerX - eyeSpacing - 12, eyeY - 18, 8, 12, 0, 0, Math.PI * 2);
       ctx.fill();
       ctx.beginPath();
-      ctx.ellipse(centerX + eyeSpacing - 5, eyeY - 5, 3, 4, 0, 0, Math.PI * 2);
+      ctx.ellipse(centerX + eyeSpacing - 12, eyeY - 18, 8, 12, 0, 0, Math.PI * 2);
       ctx.fill();
     }
   };
 
   const drawMouth = (ctx, centerX, centerY, mouthColor, viseme) => {
-    const mouthY = centerY + 40;
-    let mouthWidth = 30;
-    let mouthHeight = 15;
+    // Place mouth lower and make it smaller
+    const mouthY = centerY + 120;
+    let mouthWidth = 60;
+    let mouthHeight = 20;
 
-    ctx.fillStyle = '#d4756b'; // Pink mouth color
+    ctx.fillStyle = '#000000'; // Black mouth
     ctx.shadowBlur = 0;
 
-    // Adjust mouth based on viseme - use curves for more natural baby mouth
     if (viseme) {
       switch(viseme) {
-        case 'viseme_aa': // Open wide
-          mouthWidth = 35;
-          mouthHeight = 25;
+        case 'viseme_aa':
+          mouthWidth = 80;
+          mouthHeight = 30;
           break;
-        case 'viseme_PP': // Closed
-          mouthWidth = 20;
+        case 'viseme_PP':
+          mouthWidth = 40;
           mouthHeight = 8;
           break;
-        case 'viseme_O': // Rounded
+        case 'viseme_O':
           ctx.beginPath();
-          ctx.arc(centerX, mouthY, 12, 0, Math.PI * 2);
+          ctx.arc(centerX, mouthY, 15, 0, Math.PI * 2);
           ctx.fill();
           return;
-        case 'viseme_U': // Small round
+        case 'viseme_U':
           ctx.beginPath();
-          ctx.arc(centerX, mouthY, 8, 0, Math.PI * 2);
+          ctx.arc(centerX, mouthY, 10, 0, Math.PI * 2);
           ctx.fill();
           return;
-        case 'viseme_FF': // F/V sound
-          mouthWidth = 25;
-          mouthHeight = 10;
+        case 'viseme_FF':
+          mouthWidth = 50;
+          mouthHeight = 12;
           break;
         default:
-          mouthWidth = 30;
-          mouthHeight = 12;
+          mouthWidth = 60;
+          mouthHeight = 16;
       }
     }
 
-    // Draw curved mouth (more natural than rectangle)
     ctx.beginPath();
     ctx.ellipse(centerX, mouthY, mouthWidth/2, mouthHeight/2, 0, 0, Math.PI * 2);
     ctx.fill();
   };
 
   const drawBabyFeatures = (ctx, centerX, centerY, size) => {
-    // Draw eyebrows (light baby eyebrows)
-    ctx.strokeStyle = '#d4a574';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(centerX - 55, centerY - 45);
-    ctx.lineTo(centerX - 25, centerY - 50);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(centerX + 25, centerY - 50);
-    ctx.lineTo(centerX + 55, centerY - 45);
-    ctx.stroke();
+    // No features (eyebrows removed)
   };
 
   // Animation loop
@@ -223,13 +204,12 @@ export function RobotAvatar2D(props) {
   return (
     <canvas
       ref={canvasRef}
-      width={400}
+      width={600}
       height={400}
       style={{
         border: '2px solid #333',
         borderRadius: '10px',
-        background: 'linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)',
-        boxShadow: '0 0 20px rgba(0, 100, 255, 0.3)'
+        background: '#fff'
       }}
     />
   );
