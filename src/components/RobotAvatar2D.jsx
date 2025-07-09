@@ -8,9 +8,18 @@ export function RobotAvatar2D(props) {
   const currentViseme = useRef(null);
   const [eyeState, setEyeState] = useState('normal'); // normal, blink, excited
   const [mouthState, setMouthState] = useState('idle'); // idle, talking, happy, sad
+  const [eyeSrc, setEyeSrc] = useState("/images/eye.png");
+  const eyeImg = useRef(null);
 
   // Robot face configuration - use theme or default
   const robotConfig = ROBOT_THEMES[props.theme] || ROBOT_THEMES.default;
+
+  // Load eye image
+  useEffect(() => {
+    const img = new window.Image();
+    img.src = eyeSrc;
+    eyeImg.current = img;
+  }, [eyeSrc]);
 
   // Draw the baby face
   const drawBabyFace = (ctx, config) => {
@@ -32,56 +41,41 @@ export function RobotAvatar2D(props) {
   };
 
   const drawEyes = (ctx, centerX, centerY, eyeColor, state) => {
-    // Spread eyes wider and higher on the canvas
-    const eyeY = centerY - 100;
+    const eyeY = centerY - 50
+    ;
     const eyeSpacing = 180;
-    const eyeWidth = 40;
-    const eyeHeight = 60;
+    // Make the eyes bigger:
+    const eyeWidth = 120;   // was 40
+    const eyeHeight = 120; // was 60
 
-    ctx.fillStyle = '#000000'; // Black eyes
-    ctx.shadowBlur = 0;
-
-    switch(state) {
-      case 'blink':
-        ctx.fillRect(centerX - eyeSpacing - eyeWidth/2, eyeY - 4, eyeWidth, 8);
-        ctx.fillRect(centerX + eyeSpacing - eyeWidth/2, eyeY - 4, eyeWidth, 8);
-        break;
-      case 'excited':
-        ctx.beginPath();
-        ctx.ellipse(centerX - eyeSpacing, eyeY, eyeWidth * 1.2, eyeHeight * 1.2, 0, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.beginPath();
-        ctx.ellipse(centerX + eyeSpacing, eyeY, eyeWidth * 1.2, eyeHeight * 1.2, 0, 0, Math.PI * 2);
-        ctx.fill();
-        break;
-      default:
-        ctx.beginPath();
-        ctx.ellipse(centerX - eyeSpacing, eyeY, eyeWidth, eyeHeight, 0, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.beginPath();
-        ctx.ellipse(centerX + eyeSpacing, eyeY, eyeWidth, eyeHeight, 0, 0, Math.PI * 2);
-        ctx.fill();
-    }
-
-    // Add eye highlights
-    if (state !== 'blink') {
-      ctx.fillStyle = '#ffffff';
-      ctx.beginPath();
-      ctx.ellipse(centerX - eyeSpacing - 12, eyeY - 18, 8, 12, 0, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.beginPath();
-      ctx.ellipse(centerX + eyeSpacing - 12, eyeY - 18, 8, 12, 0, 0, Math.PI * 2);
-      ctx.fill();
+    if (eyeImg.current && eyeImg.current.complete) {
+      // Left eye
+      ctx.drawImage(
+        eyeImg.current,
+        centerX - eyeSpacing - eyeWidth / 2,
+        eyeY - eyeHeight / 2,
+        eyeWidth,
+        eyeHeight
+      );
+      // Right eye
+      ctx.drawImage(
+        eyeImg.current,
+        centerX + eyeSpacing - eyeWidth / 2,
+        eyeY - eyeHeight / 2,
+        eyeWidth,
+        eyeHeight
+      );
     }
   };
 
   const drawMouth = (ctx, centerX, centerY, mouthColor, viseme) => {
-    // Place mouth lower and make it smaller
     const mouthY = centerY + 120;
     let mouthWidth = 60;
     let mouthHeight = 20;
 
     ctx.fillStyle = '#000000'; // Black mouth
+    ctx.strokeStyle = '#000000';
+    ctx.lineWidth = 4;
     ctx.shadowBlur = 0;
 
     if (viseme) {
@@ -109,14 +103,23 @@ export function RobotAvatar2D(props) {
           mouthHeight = 12;
           break;
         default:
-          mouthWidth = 60;
-          mouthHeight = 16;
+          // fall through to closed mouth
+          break;
       }
+      // For all visemes except O and U, draw ellipse
+      if (viseme !== 'viseme_O' && viseme !== 'viseme_U') {
+        ctx.beginPath();
+        ctx.ellipse(centerX, mouthY, mouthWidth/2, mouthHeight/2, 0, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      return;
     }
 
+    // Default: closed mouth (horizontal line)
     ctx.beginPath();
-    ctx.ellipse(centerX, mouthY, mouthWidth/2, mouthHeight/2, 0, 0, Math.PI * 2);
-    ctx.fill();
+    ctx.moveTo(centerX - 30, mouthY);
+    ctx.lineTo(centerX + 30, mouthY);
+    ctx.stroke();
   };
 
   const drawBabyFeatures = (ctx, centerX, centerY, size) => {
