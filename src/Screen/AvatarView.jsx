@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useMemo } from "react";
 import { Canvas } from "@react-three/fiber";
 import Experience from "../components/Experience";
+import Experience2D from "../components/Experience2D";
 import { MdFullscreen, MdCloseFullscreen, MdVolumeUp } from "react-icons/md";
 
 function AvatarView() {
@@ -14,12 +15,15 @@ function AvatarView() {
   const [speaking, setSpeaking] = useState(false);
   const [avatarModel, setAvatarModel] = useState("/models/female.glb");
   const [background, setBackground] = useState("/textures/default.png");
+  const [is2DMode, setIs2DMode] = useState(false); // New state for 2D/3D mode
+  const [robotTheme, setRobotTheme] = useState("default"); // New state for robot theme
   const containerRef = useRef(null);
 
   const avatarOptions = [
     { label: "Female", value: "/models/female.glb" },
     { label: "Male", value: "/models/male.glb" },
     { label: "Cartoon", value: "/models/cartoon.glb" },
+    { label: "2D Robot", value: "2d-robot" }, // New 2D option
     // Add more avatars here as needed
   ];
 
@@ -28,6 +32,13 @@ function AvatarView() {
     { label: "Beach", value: "/textures/beach.jpg" },
     { label: "Living Room", value: "/textures/living_room.jpg" },
     // Add more backgrounds as needed
+  ];
+
+  const robotThemeOptions = [
+    { label: "Default", value: "default" },
+    { label: "Friendly", value: "friendly" },
+    { label: "Serious", value: "serious" },
+    { label: "Retro", value: "retro" },
   ];
 
   const height = useMemo(() => {
@@ -85,6 +96,12 @@ function AvatarView() {
       window.speechSynthesis.onvoiceschanged = null;
     };
   }, [selectedVoice]);
+
+  // Handle avatar model changes to set 2D mode
+  const handleAvatarModelChange = (value) => {
+    setAvatarModel(value);
+    setIs2DMode(value === "2d-robot");
+  };
 
   return (
     <div
@@ -145,28 +162,41 @@ function AvatarView() {
           )}
         </button>
 
-        <Canvas
-          shadows
-          camera={{ position: [0, 0, 10], fov: 20 }}
-          style={{
-            height: "100%",
-            width: "100%",
-            transition: "all 0.3s ease",
-          }}
-        >
-          <color attach="background" args={["#2d2d2d"]} />
-          <Experience
-            key={avatarModel}
+        {is2DMode ? (
+          <Experience2D
             speakingText={text}
             speak={speak}
             setSpeak={setSpeak}
             voiceURI={selectedVoice}
             onSpeechStart={() => setSpeaking(true)}
             onSpeechEnd={() => setSpeaking(false)}
-            avatarModel={avatarModel}
+            robotTheme={robotTheme}
             background={background}
           />
-        </Canvas>
+        ) : (
+          <Canvas
+            shadows
+            camera={{ position: [0, 0, 10], fov: 20 }}
+            style={{
+              height: "100%",
+              width: "100%",
+              transition: "all 0.3s ease",
+            }}
+          >
+            <color attach="background" args={["#2d2d2d"]} />
+            <Experience
+              key={avatarModel}
+              speakingText={text}
+              speak={speak}
+              setSpeak={setSpeak}
+              voiceURI={selectedVoice}
+              onSpeechStart={() => setSpeaking(true)}
+              onSpeechEnd={() => setSpeaking(false)}
+              avatarModel={avatarModel}
+              background={background}
+            />
+          </Canvas>
+        )}
       </div>
 
       {!isFullScreen && (
@@ -204,7 +234,7 @@ function AvatarView() {
             <select
               id="avatar-select"
               value={avatarModel}
-              onChange={e => setAvatarModel(e.target.value)}
+              onChange={e => handleAvatarModelChange(e.target.value)}
               style={{
                 padding: "6px",
                 borderRadius: "6px",
@@ -259,6 +289,27 @@ function AvatarView() {
                 <option key={opt.value} value={opt.value}>{opt.label}</option>
               ))}
             </select>
+            {is2DMode && (
+              <select
+                id="robot-theme-select"
+                value={robotTheme}
+                onChange={e => setRobotTheme(e.target.value)}
+                style={{
+                  padding: "6px",
+                  borderRadius: "6px",
+                  border: "1px solid #555",
+                  backgroundColor: "#1e1e1e",
+                  color: "#fff",
+                  fontSize: "14px",
+                  marginBottom: "8px"
+                }}
+                title="Choose robot theme"
+              >
+                {robotThemeOptions.map(opt => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
+            )}
           </div>
           <button
             onClick={() => {
@@ -287,6 +338,24 @@ function AvatarView() {
           >
             <MdVolumeUp size={20} style={{ marginRight: "8px" }} />
             Speak
+          </button>
+          <button
+            onClick={() => setIs2DMode(!is2DMode)}
+            style={{
+              marginLeft: "10px",
+              padding: "10px 20px",
+              backgroundColor: is2DMode ? "#007BFF" : "#555",
+              color: "white",
+              border: "none",
+              borderRadius: "10px",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              transition: "background-color 0.3s ease",
+            }}
+          >
+            {is2DMode ? "Switch to 3D" : "Switch to 2D"}
           </button>
         </div>
       )}
