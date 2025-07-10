@@ -16,7 +16,6 @@ function AvatarView() {
   const [avatarModel, setAvatarModel] = useState("/models/female.glb");
   const [background, setBackground] = useState("/textures/default.png");
   const [is2DMode, setIs2DMode] = useState(false); // New state for 2D/3D mode
-  const [robotTheme, setRobotTheme] = useState("default"); // New state for robot theme
   const containerRef = useRef(null);
 
   const avatarOptions = [
@@ -32,13 +31,6 @@ function AvatarView() {
     { label: "Beach", value: "/textures/beach.jpg" },
     { label: "Living Room", value: "/textures/living_room.jpg" },
     // Add more backgrounds as needed
-  ];
-
-  const robotThemeOptions = [
-    { label: "Default", value: "default" },
-    { label: "Friendly", value: "friendly" },
-    { label: "Serious", value: "serious" },
-    { label: "Retro", value: "retro" },
   ];
 
   const height = useMemo(() => {
@@ -170,7 +162,6 @@ function AvatarView() {
             voiceURI={selectedVoice}
             onSpeechStart={() => setSpeaking(true)}
             onSpeechEnd={() => setSpeaking(false)}
-            robotTheme={robotTheme}
             background={background}
           />
         ) : (
@@ -289,27 +280,6 @@ function AvatarView() {
                 <option key={opt.value} value={opt.value}>{opt.label}</option>
               ))}
             </select>
-            {is2DMode && (
-              <select
-                id="robot-theme-select"
-                value={robotTheme}
-                onChange={e => setRobotTheme(e.target.value)}
-                style={{
-                  padding: "6px",
-                  borderRadius: "6px",
-                  border: "1px solid #555",
-                  backgroundColor: "#1e1e1e",
-                  color: "#fff",
-                  fontSize: "14px",
-                  marginBottom: "8px"
-                }}
-                title="Choose robot theme"
-              >
-                {robotThemeOptions.map(opt => (
-                  <option key={opt.value} value={opt.value}>{opt.label}</option>
-                ))}
-              </select>
-            )}
           </div>
           <button
             onClick={() => {

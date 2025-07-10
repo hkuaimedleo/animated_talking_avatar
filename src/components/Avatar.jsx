@@ -20,6 +20,7 @@ export function Avatar(props) {
   const group = useRef();
   const { actions } = useAnimations([idleAnimation[0]], group);
   const currentViseme = useRef(null);
+  const mouthRandomness = useRef(1); // Add randomness ref
 
   const { morphTargetSmoothing } = useControls(
     {
@@ -63,6 +64,8 @@ export function Avatar(props) {
         const viseme = CORRESPONDING_VISEME[phoneme];
 
         if (viseme) {
+          // Add randomization for mouth shape
+          mouthRandomness.current = 0.95 + Math.random() * 0.1; // 0.95 - 1.05
           currentViseme.current = viseme;
 
           setTimeout(() => {
@@ -102,23 +105,19 @@ export function Avatar(props) {
         nodes.Wolf3D_Head.morphTargetDictionary[currentViseme.current];
 
       // Use maxMouthOpen for limiting morph target influence
-      nodes.Wolf3D_Head.morphTargetInfluences[index] = Math.min(
+      // Apply randomness to the morph target influence
+      const influence = Math.min(
         THREE.MathUtils.lerp(
           nodes.Wolf3D_Head.morphTargetInfluences[index],
-          1,
+          1 * mouthRandomness.current,
           morphTargetSmoothing
         ),
-        maxMouthOpen
+        maxMouthOpen * mouthRandomness.current
       );
 
-      nodes.Wolf3D_Teeth.morphTargetInfluences[index] = Math.min(
-        THREE.MathUtils.lerp(
-          nodes.Wolf3D_Teeth.morphTargetInfluences[index],
-          1,
-          morphTargetSmoothing
-        ),
-        maxMouthOpen
-      );
+      nodes.Wolf3D_Head.morphTargetInfluences[index] = influence;
+
+      nodes.Wolf3D_Teeth.morphTargetInfluences[index] = influence;
 
       console.log(index + "; " + nodes.Wolf3D_Head.morphTargetInfluences[index]);
 
@@ -232,4 +231,5 @@ export function Avatar(props) {
   );
 }
 
+// Removed the hardcoded preload, use modelPath prop to load models dynamically
 // Removed the hardcoded preload, use modelPath prop to load models dynamically
