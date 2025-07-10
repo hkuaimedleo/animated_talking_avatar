@@ -41,12 +41,11 @@ export function RobotAvatar2D(props) {
   };
 
   const drawEyes = (ctx, centerX, centerY, eyeColor, state) => {
-    const eyeY = centerY - 50
-    ;
+    // Lower the eyes by increasing eyeY
+    const eyeY = centerY + 10;
     const eyeSpacing = 180;
-    // Make the eyes bigger:
-    const eyeWidth = 120;   // was 40
-    const eyeHeight = 120; // was 60
+    const eyeWidth = 160;
+    const eyeHeight = 120;
 
     if (eyeImg.current && eyeImg.current.complete) {
       // Left eye
@@ -66,11 +65,30 @@ export function RobotAvatar2D(props) {
         eyeHeight
       );
     }
-  };
+
+    // Draw flat eyebrows above each eye
+    ctx.strokeStyle = "#222";
+    ctx.lineWidth = 8;
+    ctx.lineCap = "round";
+    // Left eyebrow (flat)
+    ctx.beginPath();
+    ctx.moveTo(centerX - eyeSpacing - 40, eyeY - eyeHeight / 2 - 60); // moved from -40 to -60
+    ctx.lineTo(centerX - eyeSpacing + 40, eyeY - eyeHeight / 2 - 60);
+    ctx.stroke();
+    // Right eyebrow (flat)
+    ctx.beginPath();
+    ctx.moveTo(centerX + eyeSpacing - 40, eyeY - eyeHeight / 2 - 60); // moved from -40 to -60
+    ctx.lineTo(centerX + eyeSpacing + 40, eyeY - eyeHeight / 2 - 60);
+    ctx.stroke();
+};
 
   const drawMouth = (ctx, centerX, centerY, mouthColor, viseme) => {
-    const mouthY = centerY + 120;
-    let mouthWidth = 60;
+    // Smile arc baseline
+    const mouthY = centerY + 80;
+    // For viseme ellipses/circles, shift down to align with smile arc
+    const visemeYOffset = 60;
+
+    let mouthWidth = 80;
     let mouthHeight = 20;
 
     ctx.fillStyle = '#000000'; // Black mouth
@@ -80,46 +98,67 @@ export function RobotAvatar2D(props) {
 
     if (viseme) {
       switch(viseme) {
-        case 'viseme_aa':
-          mouthWidth = 80;
-          mouthHeight = 30;
+        case 'viseme_aa': // wide open
+          mouthWidth = 90;
+          mouthHeight = 38;
           break;
-        case 'viseme_PP':
+        case 'viseme_E': // wide, not tall
+          mouthWidth = 90;
+          mouthHeight = 18;
+          break;
+        case 'viseme_I': // medium width, medium height
+          mouthWidth = 60;
+          mouthHeight = 24;
+          break;
+        case 'viseme_O': // round
+          ctx.beginPath();
+          ctx.arc(centerX, mouthY + visemeYOffset, 18, 0, Math.PI * 2);
+          ctx.fill();
+          return;
+        case 'viseme_U': // small round
+          ctx.beginPath();
+          ctx.arc(centerX, mouthY + visemeYOffset, 12, 0, Math.PI * 2);
+          ctx.fill();
+          return;
+        case 'viseme_PP': // closed, thin
           mouthWidth = 40;
           mouthHeight = 8;
           break;
-        case 'viseme_O':
-          ctx.beginPath();
-          ctx.arc(centerX, mouthY, 15, 0, Math.PI * 2);
-          ctx.fill();
-          return;
-        case 'viseme_U':
-          ctx.beginPath();
-          ctx.arc(centerX, mouthY, 10, 0, Math.PI * 2);
-          ctx.fill();
-          return;
-        case 'viseme_FF':
-          mouthWidth = 50;
-          mouthHeight = 12;
+        case 'viseme_FF': // flat, wide
+          mouthWidth = 60;
+          mouthHeight = 10;
+          break;
+        case 'viseme_TH': // tongue between teeth, small oval
+          mouthWidth = 38;
+          mouthHeight = 14;
+          break;
+        case 'viseme_MMM': // closed, very thin
+          mouthWidth = 32;
+          mouthHeight = 4;
+          break;
+        case 'viseme_WQ': // small oval
+          mouthWidth = 28;
+          mouthHeight = 18;
           break;
         default:
-          // fall through to closed mouth
           break;
       }
       // For all visemes except O and U, draw ellipse
       if (viseme !== 'viseme_O' && viseme !== 'viseme_U') {
         ctx.beginPath();
-        ctx.ellipse(centerX, mouthY, mouthWidth/2, mouthHeight/2, 0, 0, Math.PI * 2);
+        ctx.ellipse(centerX, mouthY + visemeYOffset, mouthWidth/2, mouthHeight/2, 0, 0, Math.PI * 2);
         ctx.fill();
       }
       return;
     }
 
-    // Default: closed mouth (horizontal line)
+    // Default: wider, flatter smile curve
+    ctx.save();
+    ctx.lineWidth = 8; // Match eyebrow thickness
     ctx.beginPath();
-    ctx.moveTo(centerX - 30, mouthY);
-    ctx.lineTo(centerX + 30, mouthY);
+    ctx.arc(centerX, mouthY, 60, Math.PI * 0.25, Math.PI * 0.75, false); // wider smile
     ctx.stroke();
+    ctx.restore();
   };
 
   const drawBabyFeatures = (ctx, centerX, centerY, size) => {
