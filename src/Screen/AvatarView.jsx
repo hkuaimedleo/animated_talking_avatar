@@ -34,12 +34,7 @@ function AvatarView() {
     // Add more backgrounds as needed
   ];
 
-  const robotThemeOptions = [
-    { label: "Default", value: "default" },
-    { label: "Friendly", value: "friendly" },
-    { label: "Serious", value: "serious" },
-    { label: "Retro", value: "retro" },
-  ];
+  const robotThemeOptions = [];
 
   const height = useMemo(() => {
     const width = window.innerWidth;

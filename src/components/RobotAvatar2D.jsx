@@ -33,7 +33,8 @@ export function RobotAvatar2D(props) {
 
   const drawEyes = (ctx, centerX, centerY, eyeColor, state) => {
     // Spread eyes wider and higher on the canvas
-    const eyeY = centerY - 100;
+    // const eyeY = centerY - 100;
+    const eyeY = centerY - 40; // moved eyes lower
     const eyeSpacing = 180;
     const eyeWidth = 40;
     const eyeHeight = 60;
