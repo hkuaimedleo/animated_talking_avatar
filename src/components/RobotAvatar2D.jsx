@@ -17,6 +17,7 @@ export function RobotAvatar2D(props) {
   const [eyeSrc, setEyeSrc] = useState("/images/eye.png");
   const eyeImg = useRef(null);
   const [mouthRandomness, setMouthRandomness] = useState({ width: 1, height: 1 });
+  const [isSpeaking, setIsSpeaking] = useState(false); // Track if speech is ongoing
 
   // Robot face configuration - use theme or default
   const robotConfig = ROBOT_THEMES[props.theme] || ROBOT_THEMES.default;
@@ -51,7 +52,7 @@ export function RobotAvatar2D(props) {
   // useEffect(() => {
 
   //   const intervalId = setInterval(() => {
- 
+
   //     if (Math.random() < 0.2) { // 20% chance to blink
   //       setEyeState('blink');
   //     } else {
@@ -88,7 +89,7 @@ export function RobotAvatar2D(props) {
     // state = "blink";
 
     // state = "normal"; // Force normal state for now
-    console.log("Eye state:", state); // Debug: log current eye state
+    // console.log("Eye state:", state); // Debug: log current eye state
 
     if (state === "blink") {
       // Draw eyes as lines
@@ -229,6 +230,13 @@ export function RobotAvatar2D(props) {
         default:
           mouthWidth = 40 * widthRand;
           mouthHeight = 10 * heightRand;
+          // ctx.save();
+          // ctx.lineWidth = 8; // Match eyebrow thickness
+          // ctx.beginPath();
+          // ctx.arc(centerX, mouthY, 60, Math.PI * 0.4, Math.PI * 0.6, false); // wider smile
+          // ctx.stroke();
+          // ctx.restore();
+          // return;
           break;
       }
       // For all visemes except O, U, R, draw ellipse
@@ -241,6 +249,7 @@ export function RobotAvatar2D(props) {
         ctx.ellipse(centerX, mouthY + visemeYOffset, mouthWidth / 2, mouthHeight / 2, 0, 0, Math.PI * 2);
         ctx.fill();
       }
+
       return;
     }
 
@@ -251,6 +260,7 @@ export function RobotAvatar2D(props) {
     ctx.arc(centerX, mouthY, 60, Math.PI * 0.25, Math.PI * 0.75, false); // wider smile
     ctx.stroke();
     ctx.restore();
+
   };
 
   const drawBabyFeatures = (ctx, centerX, centerY, size) => {
@@ -287,6 +297,10 @@ export function RobotAvatar2D(props) {
 
       const words = props.text.toUpperCase().split("");
 
+      utterance.onstart = () => {
+        setIsSpeaking(true);
+      };
+
       utterance.onboundary = (event) => {
         const word = words[event.charIndex];
         if (!word) return;
@@ -314,6 +328,7 @@ export function RobotAvatar2D(props) {
       };
 
       utterance.onend = () => {
+        setIsSpeaking(false);
         setTimeout(() => {
           currentViseme.current = null;
           setEyeState('normal');
