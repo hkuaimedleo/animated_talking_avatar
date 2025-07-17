@@ -15,7 +15,9 @@ export function RobotAvatar2D(props) {
   const [eyeState, setEyeState] = useState('normal'); // normal, blink, excited
   const [mouthState, setMouthState] = useState('idle'); // idle, talking, happy, sad
   const [eyeSrc, setEyeSrc] = useState("/images/eye.png");
+  const [faceSrc, setFaceSrc] = useState("/images/koala.jpeg");
   const eyeImg = useRef(null);
+  const faceImg = useRef(null); // use ref for face image
   const [mouthRandomness, setMouthRandomness] = useState({ width: 1, height: 1 });
   const [isSpeaking, setIsSpeaking] = useState(false); // Track if speech is ongoing
 
@@ -29,6 +31,13 @@ export function RobotAvatar2D(props) {
     eyeImg.current = img;
   }, [eyeSrc]);
 
+  // Load koala face image
+  useEffect(() => {
+    const img = new window.Image();
+    img.src = faceSrc;
+    faceImg.current = img;
+  }, [faceSrc]);
+
   // Draw the baby face
   const drawBabyFace = (ctx, config) => {
     const { size, faceColor, eyeColor, mouthColor, screenGlow } = config;
@@ -38,7 +47,14 @@ export function RobotAvatar2D(props) {
     // Clear canvas
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
-    // Draw eyes
+    // Draw koala face background
+    if (faceImg.current && faceImg.current.complete) {
+      ctx.save();
+      ctx.drawImage(faceImg.current, centerX - 300, centerY - 280, 600, 560);
+      ctx.restore();
+    }
+
+    // Draw eyes and eyebrows
     drawEyes(ctx, centerX, centerY, eyeColor, eyeState);
 
     // Draw mouth based on current viseme
@@ -72,10 +88,10 @@ export function RobotAvatar2D(props) {
 
   const drawEyes = (ctx, centerX, centerY, eyeColor, state) => {
     // Lower the eyes by increasing eyeY
-    const eyeY = centerY + 10;
-    const eyeSpacing = 180;
-    const eyeWidth = 160;
-    const eyeHeight = 120;
+    const eyeY = centerY + 0; // move eyes up a bit
+    const eyeSpacing = 90;    // reduce spacing so eyes are inside face
+    const eyeWidth = 120;      // smaller eyes
+    const eyeHeight = 90;     // smaller eyes
 
     if (!isBlinking) {
       isBlinking = true;
@@ -128,36 +144,36 @@ export function RobotAvatar2D(props) {
     }
 
     // Draw flat eyebrows above each eye
-    ctx.strokeStyle = "#222";
+    ctx.strokeStyle = "#464336";
     ctx.lineWidth = 8;
     ctx.lineCap = "round";
     // Left eyebrow (flat)
     ctx.beginPath();
-    ctx.moveTo(centerX - eyeSpacing - 40, eyeY - eyeHeight / 2 - 60);
-    ctx.lineTo(centerX - eyeSpacing + 40, eyeY - eyeHeight / 2 - 60);
+    ctx.moveTo(centerX - eyeSpacing - 20, eyeY - eyeHeight / 2 - 10);
+    ctx.lineTo(centerX - eyeSpacing + 20, eyeY - eyeHeight / 2 - 15);
     ctx.stroke();
     // Right eyebrow (flat)
     ctx.beginPath();
-    ctx.moveTo(centerX + eyeSpacing - 40, eyeY - eyeHeight / 2 - 60);
-    ctx.lineTo(centerX + eyeSpacing + 40, eyeY - eyeHeight / 2 - 60);
+    ctx.moveTo(centerX + eyeSpacing - 20, eyeY - eyeHeight / 2 - 15);
+    ctx.lineTo(centerX + eyeSpacing + 20, eyeY - eyeHeight / 2 - 10);
     ctx.stroke();
   };
 
   const drawMouth = (ctx, centerX, centerY, mouthColor, viseme) => {
     // Smile arc baseline
-    const mouthY = centerY + 80;
+    const mouthY = centerY + 90;
     // For viseme ellipses/circles, shift down to align with smile arc
     const visemeYOffset = 60;
 
-    let mouthWidth = 80;
-    let mouthHeight = 20;
+    let mouthWidth = 40;
+    let mouthHeight = 10;
 
     // Apply randomness
     const widthRand = mouthRandomness.width;
     const heightRand = mouthRandomness.height;
 
-    ctx.fillStyle = '#000000'; // Black mouth
-    ctx.strokeStyle = '#000000';
+    ctx.fillStyle = '#464336'; // Dark gray mouth
+    ctx.strokeStyle = '#464336';
     ctx.lineWidth = 4;
     ctx.shadowBlur = 0;
 
@@ -175,9 +191,9 @@ export function RobotAvatar2D(props) {
           mouthWidth = 70 * widthRand;
           mouthHeight = 32 * heightRand;
           break;
-        case 'viseme_O': // round
+        case 'viseme_O': // oval, not completely round
           ctx.beginPath();
-          ctx.arc(centerX, mouthY + visemeYOffset, 22 * widthRand, 0, Math.PI * 2);
+          ctx.ellipse(centerX, mouthY + visemeYOffset, 28 * widthRand, 18 * heightRand, 0, 0, Math.PI * 2);
           ctx.fill();
           return;
         case 'viseme_U': // small round, more oval
@@ -202,16 +218,16 @@ export function RobotAvatar2D(props) {
           mouthHeight = 4 * heightRand;
           break;
         case 'viseme_WQ': // small oval, more open
-          mouthWidth = 36 * widthRand;
+          mouthWidth = 30 * widthRand;
           mouthHeight = 22 * heightRand;
           break;
         // Extra variants for more expressiveness:
         case 'viseme_SH': // "sh" sound, wide and flat
-          mouthWidth = 80 * widthRand;
+          mouthWidth = 60 * widthRand;
           mouthHeight = 10 * heightRand;
           break;
         case 'viseme_CH': // "ch" sound, medium oval
-          mouthWidth = 50 * widthRand;
+          mouthWidth = 40 * widthRand;
           mouthHeight = 18 * heightRand;
           break;
         case 'viseme_R': // "r" sound, small and round
@@ -246,7 +262,7 @@ export function RobotAvatar2D(props) {
         viseme !== 'viseme_R'
       ) {
         ctx.beginPath();
-        ctx.ellipse(centerX, mouthY + visemeYOffset, mouthWidth / 2, mouthHeight / 2, 0, 0, Math.PI * 2);
+        ctx.ellipse(centerX, mouthY + visemeYOffset, mouthWidth / 4, mouthHeight / 2.5, 0, 0, Math.PI * 2);
         ctx.fill();
       }
 
@@ -257,7 +273,7 @@ export function RobotAvatar2D(props) {
     ctx.save();
     ctx.lineWidth = 8; // Match eyebrow thickness
     ctx.beginPath();
-    ctx.arc(centerX, mouthY, 60, Math.PI * 0.25, Math.PI * 0.75, false); // wider smile
+    ctx.arc(centerX, mouthY, 60, Math.PI * 0.35, Math.PI * 0.65, false); // wider smile
     ctx.stroke();
     ctx.restore();
 
