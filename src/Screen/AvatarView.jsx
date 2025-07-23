@@ -22,7 +22,8 @@ function AvatarView() {
     { label: "Female", value: "/models/female.glb" },
     { label: "Male", value: "/models/male.glb" },
     { label: "Cartoon", value: "/models/cartoon.glb" },
-    { label: "2D Robot", value: "2d-robot" }, // New 2D option
+    { label: "2D Penguin", value: "2d-penguin" },
+    { label: "2D Koala", value: "2d-koala" },
     // Add more avatars here as needed
   ];
 
@@ -90,9 +91,23 @@ function AvatarView() {
   }, [selectedVoice]);
 
   // Handle avatar model changes to set 2D mode
+  // Not passing the theme correctly?
+  const [robotTheme, setRobotTheme] = useState("default");
   const handleAvatarModelChange = (value) => {
     setAvatarModel(value);
-    setIs2DMode(value === "2d-robot");
+    if (value === "2d-penguin") {
+      setIs2DMode(true);
+      setRobotTheme("penguin");
+      console.log("theme p:" + robotTheme);
+    } else if (value === "2d-koala") {
+      setIs2DMode(true);
+      setRobotTheme("koala");
+      console.log("theme k:" + robotTheme);
+    } else {
+      setIs2DMode(false);
+      setRobotTheme("default");
+      console.log("theme d:" + robotTheme);
+    }
   };
 
   return (
@@ -163,6 +178,7 @@ function AvatarView() {
             onSpeechStart={() => setSpeaking(true)}
             onSpeechEnd={() => setSpeaking(false)}
             background={background}
+            robotTheme={robotTheme}
           />
         ) : (
           <Canvas

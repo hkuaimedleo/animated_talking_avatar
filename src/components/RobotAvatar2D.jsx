@@ -15,7 +15,14 @@ export function RobotAvatar2D(props) {
   const [eyeState, setEyeState] = useState('normal'); // normal, blink, excited
   const [mouthState, setMouthState] = useState('idle'); // idle, talking, happy, sad
   const [eyeSrc, setEyeSrc] = useState("/images/eye.png");
-  const [faceSrc, setFaceSrc] = useState("/images/koala.jpeg");
+  // Set faceSrc based on theme prop
+  const getFaceSrc = () => {
+    if (props.theme === 'penguin') return '/images/penguin_v3.jpg';
+    if (props.theme === 'koala') return '/images/koala.jpeg';
+    console.log("Unknown theme: " + props.theme); // Log unknown theme
+    return '/images/koala.jpeg';
+  };
+  const [faceSrc, setFaceSrc] = useState(getFaceSrc());
   const eyeImg = useRef(null);
   const faceImg = useRef(null); // use ref for face image
   const [mouthRandomness, setMouthRandomness] = useState({ width: 1, height: 1 });
@@ -31,12 +38,14 @@ export function RobotAvatar2D(props) {
     eyeImg.current = img;
   }, [eyeSrc]);
 
-  // Load koala face image
+  // Load face image based on theme
   useEffect(() => {
+    const src = getFaceSrc();
+    setFaceSrc(src);
     const img = new window.Image();
-    img.src = faceSrc;
+    img.src = src;
     faceImg.current = img;
-  }, [faceSrc]);
+  }, [props.theme]);
 
   // Draw the baby face
   const drawBabyFace = (ctx, config) => {
@@ -159,18 +168,34 @@ export function RobotAvatar2D(props) {
     ctx.stroke();
   };
 
+
   const drawMouth = (ctx, centerX, centerY, mouthColor, viseme) => {
-    // Smile arc baseline
-    const mouthY = centerY + 90;
-    // For viseme ellipses/circles, shift down to align with smile arc
+    // Determine which face is in use
+    const isKoala = props.theme === 'koala';
+    console.log("theme:" + props.theme);
+
+    // Set parameters based on face
+    let mouthY, scalingFactor, defaultLineWidth, smileArcStart, smileArcEnd;
+    if (isKoala) {
+      mouthY = centerY + 90; // koala mouth shift
+      scalingFactor = 1.0; // Koala scaling factor
+      defaultLineWidth = 8;
+      smileArcStart = Math.PI * 0.35;
+      smileArcEnd = Math.PI * 0.65;
+    } else {
+      mouthY = centerY + 10; // penguin mouth shift
+      scalingFactor = 0.5; // Penguin scaling factor
+      defaultLineWidth = 2;
+      smileArcStart = Math.PI * 0.40;
+      smileArcEnd = Math.PI * 0.60;
+    }
     const visemeYOffset = 60;
 
     let mouthWidth = 40;
     let mouthHeight = 10;
 
-    // Apply randomness
-    const widthRand = mouthRandomness.width;
-    const heightRand = mouthRandomness.height;
+    const widthRand = mouthRandomness.width * scalingFactor;
+    const heightRand = mouthRandomness.height * scalingFactor;
 
     ctx.fillStyle = '#464336'; // Dark gray mouth
     ctx.strokeStyle = '#464336';
@@ -246,13 +271,6 @@ export function RobotAvatar2D(props) {
         default:
           mouthWidth = 40 * widthRand;
           mouthHeight = 10 * heightRand;
-          // ctx.save();
-          // ctx.lineWidth = 8; // Match eyebrow thickness
-          // ctx.beginPath();
-          // ctx.arc(centerX, mouthY, 60, Math.PI * 0.4, Math.PI * 0.6, false); // wider smile
-          // ctx.stroke();
-          // ctx.restore();
-          // return;
           break;
       }
       // For all visemes except O, U, R, draw ellipse
@@ -265,15 +283,14 @@ export function RobotAvatar2D(props) {
         ctx.ellipse(centerX, mouthY + visemeYOffset, mouthWidth / 4, mouthHeight / 2.5, 0, 0, Math.PI * 2);
         ctx.fill();
       }
-
       return;
     }
 
-    // Default: wider, flatter smile curve
+    // Default: wider, flatter smile curve or penguin smile
     ctx.save();
-    ctx.lineWidth = 8; // Match eyebrow thickness
+    ctx.lineWidth = defaultLineWidth;
     ctx.beginPath();
-    ctx.arc(centerX, mouthY, 60, Math.PI * 0.35, Math.PI * 0.65, false); // wider smile
+    ctx.arc(centerX, mouthY, 60, smileArcStart, smileArcEnd, false);
     ctx.stroke();
     ctx.restore();
 
