@@ -31,6 +31,7 @@ export function RobotAvatar2D(props) {
   // Robot face configuration - use theme or default
   const robotConfig = ROBOT_THEMES[props.theme] || ROBOT_THEMES.default;
 
+
   // Load eye image
   useEffect(() => {
     const img = new window.Image();
@@ -38,13 +39,20 @@ export function RobotAvatar2D(props) {
     eyeImg.current = img;
   }, [eyeSrc]);
 
-  // Load face image based on theme
+  // Load face image based on theme and restart animation only after image is loaded
   useEffect(() => {
     const src = getFaceSrc();
     setFaceSrc(src);
     const img = new window.Image();
+    img.onload = () => {
+      faceImg.current = img;
+      // Restart animation after image is loaded
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
+      animate();
+    };
     img.src = src;
-    faceImg.current = img;
   }, [props.theme]);
 
   // Draw the baby face
@@ -152,27 +160,29 @@ export function RobotAvatar2D(props) {
       }
     }
 
-    // Draw flat eyebrows above each eye
-    ctx.strokeStyle = "#464336";
-    ctx.lineWidth = 8;
-    ctx.lineCap = "round";
-    // Left eyebrow (flat)
-    ctx.beginPath();
-    ctx.moveTo(centerX - eyeSpacing - 20, eyeY - eyeHeight / 2 - 10);
-    ctx.lineTo(centerX - eyeSpacing + 20, eyeY - eyeHeight / 2 - 15);
-    ctx.stroke();
-    // Right eyebrow (flat)
-    ctx.beginPath();
-    ctx.moveTo(centerX + eyeSpacing - 20, eyeY - eyeHeight / 2 - 15);
-    ctx.lineTo(centerX + eyeSpacing + 20, eyeY - eyeHeight / 2 - 10);
-    ctx.stroke();
+    // Only draw eyebrows for koala
+    if (props.theme === 'koala') {
+      ctx.strokeStyle = "#464336";
+      ctx.lineWidth = 8;
+      ctx.lineCap = "round";
+      // Left eyebrow (flat)
+      ctx.beginPath();
+      ctx.moveTo(centerX - eyeSpacing - 20, eyeY - eyeHeight / 2 - 10);
+      ctx.lineTo(centerX - eyeSpacing + 20, eyeY - eyeHeight / 2 - 15);
+      ctx.stroke();
+      // Right eyebrow (flat)
+      ctx.beginPath();
+      ctx.moveTo(centerX + eyeSpacing - 20, eyeY - eyeHeight / 2 - 15);
+      ctx.lineTo(centerX + eyeSpacing + 20, eyeY - eyeHeight / 2 - 10);
+      ctx.stroke();
+    }
   };
 
 
+
   const drawMouth = (ctx, centerX, centerY, mouthColor, viseme) => {
-    // Determine which face is in use
+    // Always determine isKoala from props.theme
     const isKoala = props.theme === 'koala';
-    console.log("theme:" + props.theme);
 
     // Set parameters based on face
     let mouthY, scalingFactor, defaultLineWidth, smileArcStart, smileArcEnd;
@@ -185,7 +195,7 @@ export function RobotAvatar2D(props) {
     } else {
       mouthY = centerY + 10; // penguin mouth shift
       scalingFactor = 0.5; // Penguin scaling factor
-      defaultLineWidth = 2;
+      defaultLineWidth = 4;
       smileArcStart = Math.PI * 0.40;
       smileArcEnd = Math.PI * 0.60;
     }
@@ -374,7 +384,7 @@ export function RobotAvatar2D(props) {
     }
   }, [props?.speak]);
 
-  // Start animation loop
+  // Start animation loop on mount (but let theme/image change handle restart)
   useEffect(() => {
     animate();
     return () => {

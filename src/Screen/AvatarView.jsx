@@ -15,7 +15,7 @@ function AvatarView() {
   const [speaking, setSpeaking] = useState(false);
   const [avatarModel, setAvatarModel] = useState("/models/female.glb");
   const [background, setBackground] = useState("/textures/default.png");
-  const [is2DMode, setIs2DMode] = useState(false); // New state for 2D/3D mode
+  const [is2DMode, setIs2DMode] = useState(false); // 2D/3D mode, now only controlled by dropdown
   const containerRef = useRef(null);
 
   const avatarOptions = [
@@ -98,15 +98,12 @@ function AvatarView() {
     if (value === "2d-penguin") {
       setIs2DMode(true);
       setRobotTheme("penguin");
-      console.log("theme p:" + robotTheme);
     } else if (value === "2d-koala") {
       setIs2DMode(true);
       setRobotTheme("koala");
-      console.log("theme k:" + robotTheme);
     } else {
       setIs2DMode(false);
       setRobotTheme("default");
-      console.log("theme d:" + robotTheme);
     }
   };
 
@@ -325,24 +322,7 @@ function AvatarView() {
             <MdVolumeUp size={20} style={{ marginRight: "8px" }} />
             Speak
           </button>
-          <button
-            onClick={() => setIs2DMode(!is2DMode)}
-            style={{
-              marginLeft: "10px",
-              padding: "10px 20px",
-              backgroundColor: is2DMode ? "#007BFF" : "#555",
-              color: "white",
-              border: "none",
-              borderRadius: "10px",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              transition: "background-color 0.3s ease",
-            }}
-          >
-            {is2DMode ? "Switch to 3D" : "Switch to 2D"}
-          </button>
+
         </div>
       )}
     </div>
